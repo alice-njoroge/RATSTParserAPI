@@ -28,6 +28,19 @@ def to_mysql(python_callable_string) -> str:
         query = 'select {props} from {table_two}'.format(props=props, table_two=second_table)
         union_statement = query
 
+    difference_statement = None
+    if 'difference' in python_callable_string:
+        difference_portion = python_callable_string.split('difference')[1]
+        the_first_portion = python_callable_string.split('difference')[0]
+        python_callable_string = the_first_portion
+        removed_opening_bracket = difference_portion.split('(')[1]
+        second_table = removed_opening_bracket.split('.')[0]
+        projection_portion = difference_portion.split('projection')[1]
+        without_opening_bracket = projection_portion.split('(')[1]
+        props = without_opening_bracket.split(')', 1)[0].replace('"', '')
+        query = 'select {props} from {table_two}'.format(props=props, table_two=second_table)
+        difference_statement = query
+
     selection_query = None
     if 'selection' in python_callable_string:
         selection_portion = python_callable_string.split('selection')[1]
@@ -62,4 +75,6 @@ def to_mysql(python_callable_string) -> str:
     if union_statement:
         query = "{query} union {union_statement}".format(query=query, union_statement=union_statement)
 
+    if difference_statement:
+        query = "{query} minus {difference_statement}".format(query=query, difference_statement=difference_statement)
     return query
