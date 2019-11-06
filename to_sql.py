@@ -38,7 +38,11 @@ def to_mysql(python_callable_string) -> str:
         projection_portion = difference_portion.split('projection')[1]
         without_opening_bracket = projection_portion.split('(')[1]
         props = without_opening_bracket.split(')', 1)[0].replace('"', '')
-        query = 'select {props} from {table_two}'.format(props=props, table_two=second_table)
+        query = '{query} left join {table_two} using ({prop}) where {table_two}.{prop} is null'.format(
+            query=query,
+            table_two=second_table,
+            prop=props
+        )
         difference_statement = query
 
     selection_query = None
@@ -76,5 +80,5 @@ def to_mysql(python_callable_string) -> str:
         query = "{query} union {union_statement}".format(query=query, union_statement=union_statement)
 
     if difference_statement:
-        query = "{query} minus {difference_statement}".format(query=query, difference_statement=difference_statement)
+        query = "{query} {difference_statement}".format(query=query, difference_statement=difference_statement)
     return query
