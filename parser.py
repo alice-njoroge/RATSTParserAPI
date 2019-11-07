@@ -355,14 +355,11 @@ def tokenize(expression: str) -> list:
             print('append the unary operator to the array:', expression[0:1])
             items.append(expression[0:1])
             # Adding operator in the top of the list
-            expression = expression[
-                         1:].strip()  # Removing operator from the expression
+            expression = expression[1:].strip()  # Removing operator from the expression
             print('remove the operator from the new parenthesis:', expression)
 
-            if expression.startswith(
-                    '('):  # Expression with parenthesis, so adding what's between open and close without tokenization
-                par = expression.find(
-                    '(', _find_matching_parenthesis(expression))
+            if expression.startswith('('):  # Expression with parenthesis, so adding what's between open and close without tokenization
+                par = expression.find( '(', _find_matching_parenthesis(expression))
                 print('So the remaining expression check if it starts with a paranthesis:', par)
             else:  # Expression without parenthesis, so adding what's between start and parenthesis as whole
                 par = _find_token(expression, '(')
@@ -372,8 +369,7 @@ def tokenize(expression: str) -> list:
             items.append(expression[:par].strip())
             print('append everything found to the items array:', items)
             # Inserting parameter of the operator
-            expression = expression[
-                         par:].strip()  # Removing parameter from the expression
+            expression = expression[par:].strip()  # Removing parameter from the expression
             print('the remove what we found from the original expression given')
         else:  # Relation (hopefully)
             expression += ' '  # To avoid the special case of the ending
