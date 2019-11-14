@@ -50,6 +50,10 @@ def to_mysql(python_callable_string) -> str:
         selection_portion = python_callable_string.split('selection')[1]
         select_clause = selection_portion.split('(')[1]
         condition = select_clause.split(')', 1)[0].replace("'", '')
+        if '∨' in condition:
+            condition = condition.replace('∨', 'or')
+        if '∧' in condition:
+            condition = condition.replace('∧', 'and')
         selection_query = 'where {}'.format(condition)
 
     query = 'select *'
