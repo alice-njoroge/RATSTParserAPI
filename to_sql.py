@@ -63,6 +63,13 @@ def to_mysql(python_callable_string) -> str:
         props = operation_the_other_string.split(')', 1)[0].replace('"', '')
         query = 'select {}'.format(props)
 
+    # Mysql does not have a product statement, but the same can be simulated using
+    # a cross join statement  http://www.mysqltutorial.org/mysql-cross-join/
+    # some product statements
+    # ?query=(Books * Articles) : this is a very simple cross join statement
+    # ?query=σauthor = 'tutorialspoint'(Books * Articles) : this is a bit complex, using product together with selection
+    # ?query=π author (σauthor = 'tutorialspoint'(Books * Articles)) : this is very complex, uses both selection
+    # and projection together product operators
     cross_join_statement = None
     if 'product' in python_callable_string:
         product_portion = python_callable_string.split('product')[1]
