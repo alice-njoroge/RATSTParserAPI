@@ -5,9 +5,10 @@
 # to convert expressions into python expressions and to get the parse-tree
 # of the expression.
 #
+from typing import Dict, Union
 
 
-def to_mysql(python_callable_string) -> str:
+def to_mysql(python_callable_string: str) -> Union[Dict[str, str], str]:
     """
     convert the python callable string to sql
     :param python_callable_string:
@@ -117,5 +118,29 @@ def to_mysql(python_callable_string) -> str:
     if difference_statement:
         query = "{query} {difference_statement}".format(query=query, difference_statement=difference_statement)
 
+    # to rename
+    # A simple query
+    # ?query=ρEmployeeName/Name(Employee)
+    # ?query=ρStaff(Employee)
+    if 'rename' in python_callable_string:
+        relation_name = python_callable_string.split('.')[0]
+        rename_operation = python_callable_string.split('rename')[1]
+        rename_props = rename_operation.split('({"')[1]
+        if '/' in rename_props:
+            new_attribute_name = rename_props.split('/')[0]
+            remove_ending_characters = rename_props.split('"})')[0]
+            old_attribute_name = remove_ending_characters.split('/')[1]
+            return {
+                'relation_name': relation_name,
+                'new_attribute_name': new_attribute_name,
+                'old_attribute_name': old_attribute_name
+            }
+        else:
+            rename_props = rename_operation.split('({"')[1]
+            new_relation_name = rename_props.split('"})')[0]
+            return {
+                'new_relation_name': new_relation_name,
+                'old_relation_name': relation_name
+            }
     # And finally return the fully constructed mysql compatible sql statement
     return query
