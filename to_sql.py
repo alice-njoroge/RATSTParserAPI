@@ -118,7 +118,7 @@ def to_mysql(python_callable_string: str) -> Union[Dict[str, str], str]:
     if difference_statement:
         query = "{query} {difference_statement}".format(query=query, difference_statement=difference_statement)
 
-    # unfortunately mysql does not have the intersection operator but we can simulate it
+    # unfortunately mysql does not have the intersection operator but we can simulate it using
     # distinct and an inner join
     # The INTERSECT operator is a set operator that returns only distinct rows of two queries or more queries.
     # An example query would be
