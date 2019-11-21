@@ -138,10 +138,11 @@ def to_mysql(python_callable_string: str) -> Union[Dict[str, str], str]:
         intersection_portion = python_callable_string.split('intersection')[1]
         the_first_portion = python_callable_string.split('intersection')[0]
         python_callable_string = the_first_portion
+        first_table = python_callable_string.split('.')[0]
         projection_portion = python_callable_string.split('projection')[1]
         operation_the_other_string = projection_portion.split('(')[1]
         props = operation_the_other_string.split(')', 1)[0].replace('"', '')
-        query = 'select distinct {}'.format(props)
+        query = 'select distinct {props} from {table_one}'.format(props=props, table_one=first_table)
         removed_opening_bracket = intersection_portion.split('(')[1]
         second_table = removed_opening_bracket.split('.')[0]
         projection_portion = intersection_portion.split('projection')[1]
