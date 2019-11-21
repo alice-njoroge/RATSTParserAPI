@@ -94,6 +94,15 @@ def to_mysql(python_callable_string: str) -> Union[Dict[str, str], str]:
         second_table = product_clause.split(')', 1)[0]
         cross_join_statement = 'cross join {second_table}'.format(second_table=second_table)
 
+    # A sample natural join query
+    # ?query=A⋈B
+    natural_join_statement = None
+    if 'join' in python_callable_string:
+        join_portion = python_callable_string.split('join')[1]
+        second_table_clause = join_portion.split('(')[1]
+        second_table = second_table_clause.split(')')[0]
+        natural_join_statement = "natural join {second_table}".format(second_table=second_table)
+
     # Create the basic query, something like select * from table if no projection
     #  else select <projection_list> from table
     query = "{query} from {table_name}".format(query=query, table_name=python_callable_string.split('.')[0])
@@ -118,6 +127,8 @@ def to_mysql(python_callable_string: str) -> Union[Dict[str, str], str]:
     if difference_statement:
         query = "{query} {difference_statement}".format(query=query, difference_statement=difference_statement)
 
+    if natural_join_statement:
+        query = "{query} {natural_join_statement}".format(query=query, natural_join_statement=natural_join_statement)
     # unfortunately mysql does not have the intersection operator but we can simulate it using
     # distinct and an inner join
     # The INTERSECT operator is a set operator that returns only distinct rows of two queries or more queries.
