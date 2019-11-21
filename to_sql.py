@@ -17,7 +17,7 @@ def to_mysql(python_callable_string: str) -> Union[Dict[str, str], str]:
     print('the callable string:', python_callable_string)
     query = ''
     # A sample union statement
-    # query=π author (Books) ∪ π author (Articles)
+    # ?query=π author (Books) ∪ π author (Articles)
     union_statement = None
     if 'union' in python_callable_string:
         union_portion = python_callable_string.split('union')[1]
@@ -117,6 +117,27 @@ def to_mysql(python_callable_string: str) -> Union[Dict[str, str], str]:
     # at this time depending on the complexity of the query
     if difference_statement:
         query = "{query} {difference_statement}".format(query=query, difference_statement=difference_statement)
+
+    # unfortunately mysql does not have the intersection operator but we can simulate it
+    # distinct and an inner join
+    # The INTERSECT operator is a set operator that returns only distinct rows of two queries or more queries.
+    # An example query would be
+    # ?query=π author (Books) ∩ π author (Articles)
+    if 'intersection' in python_callable_string:
+        intersection_portion = python_callable_string.split('intersection')[1]
+        the_first_portion = python_callable_string.split('intersection')[0]
+        python_callable_string = the_first_portion
+        projection_portion = python_callable_string.split('projection')[1]
+        operation_the_other_string = projection_portion.split('(')[1]
+        props = operation_the_other_string.split(')', 1)[0].replace('"', '')
+        query = 'select distinct {}'.format(props)
+        removed_opening_bracket = intersection_portion.split('(')[1]
+        second_table = removed_opening_bracket.split('.')[0]
+        projection_portion = intersection_portion.split('projection')[1]
+        without_opening_bracket = projection_portion.split('(')[1]
+        props = without_opening_bracket.split(')', 1)[0].replace('"', '')
+        query = "{query} inner join {table_two} using({prop})".format(
+            query=query, table_two=second_table, prop=props)
 
     # to rename
     # A simple query
