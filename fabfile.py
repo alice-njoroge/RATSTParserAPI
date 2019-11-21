@@ -53,4 +53,4 @@ def _create_main_webserver_files():
 
 
 def _restart_main_server():
-    sudo('supervisorctl restart ratstapi')
+    sudo('supervisorctl restart ratst')
