@@ -6,7 +6,7 @@ from fabric.contrib.files import exists, append
 REPO_URL = 'https://github.com/alice-njoroge/RATSTParserAPI.git'
 
 
-def main_deploy():
+def deploy():
     env.use_ssh_config = True
     site_folder = f'/home/nanoafrika/RATSTParserAPI'
     run(f'mkdir  -p {site_folder}')
