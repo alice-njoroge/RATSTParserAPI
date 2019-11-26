@@ -24,7 +24,7 @@ class Index(Resource):
         req_parser.add_argument('query', type=str, help='The relational query is required', required=True)
         args = req_parser.parse_args() # extract the query and convert the string to python dict marshling
         query = args.get('query') # get the query from the dictionary 
-        try: # try catch errors 
+        try: # try catch errors both parse exeption and SQL
             parsed_expression = parser.parse(query)
             sql_expression = to_sql.to_mysql(parsed_expression)
             return {'result': sql_expression}
