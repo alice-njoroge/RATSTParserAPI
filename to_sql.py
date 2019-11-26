@@ -18,6 +18,12 @@ def to_mysql(python_callable_string: str) -> Union[Dict[str, str], str]:
     query = ''
     # A sample union statement
     # ?query=π author (Books) ∪ π author (Articles)
+    # python string
+    # Books.projection("author").union(Articles.projection("author"))
+    # A little bit complex query
+    # ?query=π author( σ a="jj"(Books)) ∪ π author( σ a='k' (Articles))
+    # Python string
+    # Books.selection('a="jj"').projection("author").union(Articles.selection("a='k'").projection("author"))
     union_statement = None
     if 'union' in python_callable_string:
         union_portion = python_callable_string.split('union')[1]
@@ -25,10 +31,21 @@ def to_mysql(python_callable_string: str) -> Union[Dict[str, str], str]:
         python_callable_string = the_first_portion
         removed_opening_bracket = union_portion.split('(')[1]
         second_table = removed_opening_bracket.split('.')[0]
+        selection_statement = None
+        if 'selection' in union_portion:
+            selection_portion = union_portion.split('selection')[1]
+            select_clause = selection_portion.split('(')[1]
+            condition = select_clause.split(')', 1)[0].replace("'", '')
+            if '∨' in condition:
+                condition = condition.replace('∨', 'or')
+            if '∧' in condition:
+                condition = condition.replace('∧', 'and')
+            selection_statement = "where {condition}".format(condition=condition)
         projection_portion = union_portion.split('projection')[1]
         without_opening_bracket = projection_portion.split('(')[1]
         props = without_opening_bracket.split(')', 1)[0].replace('"', '')
-        query = 'select {props} from {table_two}'.format(props=props, table_two=second_table)
+        query = 'select {props} from {table_two} {selection_statement}'.format(props=props, table_two=second_table,
+                                                                               selection_statement=selection_statement if selection_statement else '')
         union_statement = query
 
     # Mysql does not have a difference operator but the operation
