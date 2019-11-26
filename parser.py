@@ -149,11 +149,7 @@ class Node:
                 return
         raise ParserException("Expected operator in '%s'" % expression)
 
-    def toCode(self):
-        """This method converts the AST into a python code object"""
-        code = self._toPython()
-        return compile(code, '<relational_expression>', 'eval')
-
+    
     def toPython(self) -> CallableString:
         """This method converts the AST into a python code string, which
         will require the relation module to be executed.
@@ -209,39 +205,6 @@ class Node:
             return self.left.get_left_leaf()
         raise ValueError('What kind of alien object is this?')
 
-    def result_format(self, rels: dict) -> list:
-        """This function returns a list containing the fields that the resulting relation will have.
-        It requires a dictionary where keys are the names of the relations and the values are
-        the relation objects."""
-        if not isinstance(rels, dict):
-            raise TypeError('Can\'t be of None type')
-
-        if self.kind == RELATION:
-            return list(rels[self.name].header)
-        elif self.kind == BINARY and self.name in (DIFFERENCE, UNION, INTERSECTION):
-            return self.left.result_format(rels)
-        elif self.kind == BINARY and self.name == DIVISION:
-            return list(set(self.left.result_format(rels)) - set(self.right.result_format(rels)))
-        elif self.name == PROJECTION:
-            return [i.strip() for i in self.prop.split(',')]
-        elif self.name == PRODUCT:
-            return self.left.result_format(rels) + self.right.result_format(rels)
-        elif self.name == SELECTION:
-            return self.child.result_format(rels)
-        elif self.name == RENAME:
-            _vars = {}
-            for i in self.prop.split(','):
-                q = i.split(ARROW)
-                _vars[q[0].strip()] = q[1].strip()
-
-            _fields = self.child.result_format(rels)
-            for i in range(len(_fields)):
-                if _fields[i] in _vars:
-                    _fields[i] = _vars[_fields[i]]
-            return _fields
-        elif self.name in (JOIN, JOIN_LEFT, JOIN_RIGHT, JOIN_FULL):
-            return list(set(self.left.result_format(rels)).union(set(self.right.result_format(rels))))
-        raise ValueError('What kind of alien object is this?')
 
     def __eq__(self, other):
         if not (isinstance(other, node) and self.name == other.name and self.kind == other.kind):
